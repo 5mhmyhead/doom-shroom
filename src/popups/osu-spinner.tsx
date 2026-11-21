@@ -7,17 +7,38 @@ import {
   View,
 } from "react-native";
 import type { PopupProps } from "./types";
-import { useRef, useEffect, useMemo } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import type { ComponentRef } from "react";
 
-const rotationsToFill = (level: number) => Math.min(4 + level, 14);
-const drainPerSecond = (level: number) => Math.min(8 + level * 3, 30);
+const LEVELS = [
+  { turns: 6, drain: 25, switchMs: 0 },
+  { turns: 9, drain: 30, switchMs: 4000 },
+  { turns: 12, drain: 35, switchMs: 2500 },
+  { turns: 15, drain: 40, switchMs: 1000 },
+];
+const FACES = [
+  require("../../assets/difficulty-faces/Normal_Icon.png"),
+  require("../../assets/difficulty-faces/Hard_Icon.png"),
+  require("../../assets/difficulty-faces/Insane_Icon.png"),
+  require("../../assets/difficulty-faces/EasyDemon_Icon.png"),
+];
+const MAX_LEVEL = LEVELS.length;
+const WRONG_PENALTY = 2;
+const SWITCH_GRACE_MS = 150;
 
 const IDLE_MS = 120;
 
 export default function OsuSpinner({ onSolve, level }: PopupProps) {
-  const fillPerDegree = 100 / (rotationsToFill(level) * 360);
-  const drain = drainPerSecond(level);
+  const idx = 3;
+  const cfg = LEVELS[idx];
+  const directional = cfg.switchMs > 0;
+
+  const fillPerDegree = 100 / (cfg.turns * 360);
+  const drain = cfg.drain;
+
+  const dirRef = useRef<0 | 1 | -1>(0);
+  const [dir, setDir] = useState<1 | -1>(1);
+  const lastSwitchAt = useRef(0);
 
   const rotation = useRef(new Animated.Value(0)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -77,6 +98,18 @@ export default function OsuSpinner({ onSolve, level }: PopupProps) {
           rotationDeg.current += delta;
           rotation.setValue(rotationDeg.current);
 
+          const need = dirRef.current;
+          const inGrace = Date.now() - lastSwitchAt.current < SWITCH_GRACE_MS;
+          const correct = need === 0 || inGrace || Math.sign(delta) === need;
+          if (!correct) {
+            progress.current = Math.max(
+              0,
+              progress.current -
+                Math.abs(delta) * fillRef.current * WRONG_PENALTY,
+            );
+            return;
+          }
+
           lastSpinAt.current = Date.now();
           progress.current = Math.min(
             100,
@@ -124,6 +157,22 @@ export default function OsuSpinner({ onSolve, level }: PopupProps) {
     return () => cancelAnimationFrame(raf);
   }, [progressAnim]);
 
+  useEffect(() => {
+    if (!cfg.switchMs) {
+      dirRef.current = 0;
+      return;
+    }
+    dirRef.current = 1;
+    setDir(1);
+    const id = setInterval(() => {
+      const next: 1 | -1 = dirRef.current === 1 ? -1 : 1;
+      dirRef.current = next;
+      lastSwitchAt.current = Date.now();
+      setDir(next);
+    }, cfg.switchMs);
+    return () => clearInterval(id);
+  }, [cfg.switchMs]);
+
   const rotate = rotation.interpolate({
     inputRange: [0, 360],
     outputRange: ["0deg", "360deg"],
@@ -142,18 +191,29 @@ export default function OsuSpinner({ onSolve, level }: PopupProps) {
       />
       <View style={s.content}>
         <View style={s.header}>
-          <Text style={s.level}>Level {level + 1}</Text>
+          <Text style={s.level}>Level {idx + 1}</Text>
           <Text style={s.title}>Circut Chalege</Text>
         </View>
 
         <View style={s.panel}>
-          <Image
-            source={require("../../assets/difficulty-faces/Normal_Icon.png")}
-            style={s.smiley}
-          />
+          <Image source={FACES[idx]} style={s.smiley} />
 
           <View style={s.banner}>
-            <Text style={s.bannerText}>Keep Spinning!!111</Text>
+            {directional && (
+              <Text style={s.arrow}>{dir === 1 ? "↻" : "↺"}</Text>
+            )}
+            <Text
+              style={s.bannerText}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.6}
+            >
+              {directional
+                ? dir === 1
+                  ? "CLOCKWISE!1!!"
+                  : "COUNTER-CLOCKWISE!!11"
+                : "Keep Spinning!!111"}
+            </Text>
           </View>
 
           <View
@@ -219,11 +279,18 @@ const s = StyleSheet.create({
     width: "90%",
     height: 52,
     backgroundColor: "#000000",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 10,
     marginBottom: 20,
   },
-  bannerText: { color: "#FFFFFF", fontSize: 18 },
+  arrow: {
+    color: "#FFB74D",
+    fontSize: 30,
+    fontWeight: "bold",
+  },
+  bannerText: { color: "#FFFFFF", fontSize: 18, flexShrink: 1 },
   wheel: { width: 230, height: 230 },
   wheelImage: { width: 230, height: 230 },
   bar: {
