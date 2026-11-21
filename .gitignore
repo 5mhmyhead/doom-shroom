@@ -42,3 +42,10 @@ yarn-error.*
 
 # claude
 .claude/
+
+# Android build outputs
+**/.gradle/
+**/build/
+
+# APK files
+*.apk
