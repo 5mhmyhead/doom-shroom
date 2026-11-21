@@ -12,7 +12,7 @@ import {
   stopMonitor,
 } from '../lib/blocker';
 import { popups } from '../popups/registry';
-import { GothicMasthead, GothicPermissions, PermState } from '../theme/gothic';
+import { GothicGraniteSection, GothicMasthead, GothicPermissions, PermState } from '../theme/gothic';
 
 type Props = {
   intervalSec: number;
@@ -74,14 +74,16 @@ export default function HomeScreen({
   const header = (
     <View>
       {/* SECTION 1: gothic masthead + permissions (styled) */}
-      <GothicMasthead interruptions={interruptions} />
-      <GothicPermissions
-        perm={perm}
-        onOverlay={openOverlaySettings}
-        onUsage={openUsageSettings}
-        onNotify={askNotifications}
-        onRefresh={refreshPerm}
-      />
+      <GothicGraniteSection>
+        <GothicMasthead interruptions={interruptions} />
+        <GothicPermissions
+          perm={perm}
+          onOverlay={openOverlaySettings}
+          onUsage={openUsageSettings}
+          onNotify={askNotifications}
+          onRefresh={refreshPerm}
+        />
+      </GothicGraniteSection>
 
       {/* SECTIONS 2-5: still plain, restyle one at a time */}
       <View style={s.header}>
