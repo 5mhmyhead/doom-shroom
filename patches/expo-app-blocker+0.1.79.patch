@@ -1,0 +1,65 @@
+diff --git a/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/AppBlockerService.kt b/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/AppBlockerService.kt
+index f89506b..e9bb5dc 100644
+--- a/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/AppBlockerService.kt
++++ b/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/AppBlockerService.kt
+@@ -183,7 +183,7 @@ class AppBlockerService : Service() {
+   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+     when (intent?.action) {
+       ACTION_TEMPORARY_UNLOCK -> {
+-        val minutes = intent.getIntExtra(EXTRA_DURATION_MINUTES, 0)
++        val minutes = intent.getDoubleExtra(EXTRA_DURATION_MINUTES, 0.0)
+         Log.d(TAG, "Granting $minutes minutes of earned time")
+         unlockController.grant(minutes)
+         consumingSinceMs = 0L
+@@ -280,7 +280,7 @@ class AppBlockerService : Service() {
+       context.stopService(intent)
+     }
+ 
+-    fun temporaryUnlock(context: Context, durationMinutes: Int) {
++    fun temporaryUnlock(context: Context, durationMinutes: Double) {
+       val intent = Intent(context, AppBlockerService::class.java).apply {
+         action = ACTION_TEMPORARY_UNLOCK
+         putExtra(EXTRA_DURATION_MINUTES, durationMinutes)
+diff --git a/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/ExpoAppBlockerModule.kt b/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/ExpoAppBlockerModule.kt
+index 7ffa383..d6ca2b3 100644
+--- a/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/ExpoAppBlockerModule.kt
++++ b/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/ExpoAppBlockerModule.kt
+@@ -117,7 +117,7 @@ class ExpoAppBlockerModule : Module() {
+       Log.d(TAG, "stopMonitoring called")
+     }
+ 
+-    Function("temporaryUnlockAndroid") { durationMinutes: Int ->
++    Function("temporaryUnlockAndroid") { durationMinutes: Double ->
+       AppBlockerService.temporaryUnlock(context, durationMinutes)
+       Log.d(TAG, "temporaryUnlockAndroid: $durationMinutes minutes")
+     }
+diff --git a/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/TemporaryUnlockController.kt b/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/TemporaryUnlockController.kt
+index d91b481..68804a7 100644
+--- a/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/TemporaryUnlockController.kt
++++ b/node_modules/expo-app-blocker/android/src/main/java/expo/modules/appblocker/TemporaryUnlockController.kt
+@@ -25,9 +25,9 @@ class TemporaryUnlockController(private val context: Context) {
+     get() = Store.remainingMs(context) > 0
+ 
+   /** Grant a fresh budget of [durationMinutes], replacing any existing balance. No-op if <= 0. */
+-  fun grant(durationMinutes: Int) {
+-    if (durationMinutes <= 0) return
+-    Store.setRemaining(context, durationMinutes * 60_000L)
++  fun grant(durationMinutes: Double) {
++    if (durationMinutes <= 0.0) return
++    Store.setRemaining(context, (durationMinutes * 60_000.0).toLong())
+   }
+ 
+   /** Spend [elapsedMs] of the budget (clamped at 0). Called while inside a blocked app. */
+diff --git a/node_modules/expo-app-blocker/src/index.ts b/node_modules/expo-app-blocker/src/index.ts
+index 62f5c6d..f8a1498 100644
+--- a/node_modules/expo-app-blocker/src/index.ts
++++ b/node_modules/expo-app-blocker/src/index.ts
+@@ -177,7 +177,7 @@ export function isAppBlocked(bundleIdentifier: string): boolean {
+  */
+ export async function temporaryUnlock(durationMinutes: number = 15): Promise<TemporaryUnlockResult> {
+   if (Platform.OS === "android") {
+-    NativeModule.temporaryUnlockAndroid(Math.max(1, Math.round(durationMinutes)));
++    NativeModule.temporaryUnlockAndroid(Math.max(0.01, durationMinutes));
+     return { unlocked: true, expiresAt: Date.now() + durationMinutes * 60_000 };
+   }
+   return NativeModule.temporaryUnlock(durationMinutes);
