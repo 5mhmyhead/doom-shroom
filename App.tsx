@@ -2,8 +2,19 @@ import { useCallback, useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
 import * as Linking from 'expo-linking';
 import { useFonts, GreatVibes_400Regular } from '@expo-google-fonts/great-vibes';
+import { Fredoka_600SemiBold, Fredoka_700Bold } from '@expo-google-fonts/fredoka';
+import { PatrickHand_400Regular } from '@expo-google-fonts/patrick-hand';
+import { Silkscreen_700Bold } from '@expo-google-fonts/silkscreen';
+import { Fondamento_400Regular, Fondamento_400Regular_Italic } from '@expo-google-fonts/fondamento';
+import { MetalMania_400Regular } from '@expo-google-fonts/metal-mania';
+import {
+  Almendra_400Regular,
+  Almendra_700Bold,
+  Almendra_700Bold_Italic,
+} from '@expo-google-fonts/almendra';
 import PopupScreen from './src/screens/popup-screen';
 import HomeScreen from './src/screens/home-screen';
+
 import {
   IS_EXPO_GO,
   grantWindow,
@@ -20,7 +31,19 @@ type Mode =
   | { name: 'dev'; index: number };
 
 export default function App() {
-  const [fontsLoaded, fontError] = useFonts({ GreatVibes_400Regular });
+  const [fontsLoaded, fontError] = useFonts({
+    GreatVibes_400Regular,
+    Fredoka_600SemiBold,
+    Fredoka_700Bold,
+    PatrickHand_400Regular,
+    Silkscreen_700Bold,
+    Fondamento_400Regular,
+    Fondamento_400Regular_Italic,
+    MetalMania_400Regular,
+    Almendra_400Regular,
+    Almendra_700Bold,
+    Almendra_700Bold_Italic,
+  });
 
   const [mode, setMode] = useState<Mode>({ name: 'home' });
   const [intervalSec, setIntervalSec] = useState(15);

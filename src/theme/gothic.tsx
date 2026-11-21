@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import {
-  Animated, Easing, Image, ImageSourcePropType, Pressable, StyleSheet, Text, TextStyle, View,
+  Animated, Easing, Image, ImageSourcePropType, Pressable, StyleSheet, Text, TextStyle, useWindowDimensions, View,
 } from 'react-native';
 import { Image as ExpoImage, type ImageProps as ExpoImageProps } from 'expo-image';
 import { ASSETS } from './gothicAssets';
@@ -72,8 +72,10 @@ export function Tiled({
 }
 
 export function GothicGraniteSection({ children }: { children: ReactNode }) {
+  const { height } = useWindowDimensions();
+
   return (
-    <View style={g.graniteWrap}>
+    <View style={[g.graniteWrap, { minHeight: height + 24 }]}>
       <Tiled source={ASSETS.granite} fallback={goth.coal} dim={0.25} />
       {children}
     </View>
@@ -299,14 +301,15 @@ const g = StyleSheet.create({
   graniteWrap: {
     overflow: 'hidden',
     backgroundColor: goth.coal,
-    paddingBottom: 6,
+    justifyContent: 'space-between',
+    paddingBottom: 124,
     borderBottomWidth: 6,
     borderBottomColor: '#333',
   },
   mast: {
     overflow: 'hidden',
     paddingTop: 44,
-    paddingBottom: 14,
+    paddingBottom: 20,
     paddingHorizontal: 14,
   },
   topSpacer: { height: 54, marginBottom: 6 },
