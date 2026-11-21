@@ -11,7 +11,13 @@
     },
     "android": {
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.doomshroom"
+      "package": "com.anonymous.doomshroom",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
     },
     "plugins": [
       "expo-app-blocker",
@@ -19,6 +25,49 @@
       "expo-image",
       "expo-audio",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "com.example.doom-shroom.ShieldConfiguration",
+                  "targetName": "ShieldConfiguration",
+                  "entitlements": {
+                    "com.apple.developer.family-controls": true,
+                    "com.apple.security.application-groups": [
+                      "group.expo.app-blocker"
+                    ]
+                  }
+                },
+                {
+                  "bundleIdentifier": "com.example.doom-shroom.ShieldAction",
+                  "targetName": "ShieldAction",
+                  "entitlements": {
+                    "com.apple.developer.family-controls": true,
+                    "com.apple.security.application-groups": [
+                      "group.expo.app-blocker"
+                    ]
+                  }
+                },
+                {
+                  "bundleIdentifier": "com.example.doom-shroom.DeviceActivityMonitor",
+                  "targetName": "DeviceActivityMonitor",
+                  "entitlements": {
+                    "com.apple.developer.family-controls": true,
+                    "com.apple.security.application-groups": [
+                      "group.expo.app-blocker"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "9b61a9b7-e6b8-477c-8865-640d648a8fdf"
+      }
+    }
   }
 }
