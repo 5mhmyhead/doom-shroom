@@ -12,6 +12,7 @@ import {
   stopMonitor,
 } from '../lib/blocker';
 import { popups } from '../popups/registry';
+import { GothicMasthead, GothicPermissions, PermState } from '../theme/gothic';
 
 type Props = {
   intervalSec: number;
@@ -22,18 +23,10 @@ type Props = {
   onDev: (index: number) => void;
 };
 
-type Perm = { overlay: boolean; usageStats: boolean; notifications: boolean };
-
 const Link = ({ label, onPress }: { label: string; onPress: () => void }) => (
   <Pressable onPress={onPress}>
     <Text style={s.link}>{label}</Text>
   </Pressable>
-);
-
-const PermRow = ({ label, ok }: { label: string; ok: boolean }) => (
-  <Text style={s.base}>
-    [{ok ? 'x' : ' '}] {label} — {ok ? 'OK' : 'MISSING'}
-  </Text>
 );
 
 export default function HomeScreen({
@@ -44,7 +37,7 @@ export default function HomeScreen({
   setMonitoring,
   onDev,
 }: Props) {
-  const [perm, setPerm] = useState<Perm>({ overlay: false, usageStats: false, notifications: false });
+  const [perm, setPerm] = useState<PermState>({ overlay: false, usageStats: false, notifications: false });
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [blocked, setBlockedState] = useState<string[]>([]);
   const [filter, setFilter] = useState('');
@@ -79,49 +72,50 @@ export default function HomeScreen({
   };
 
   const header = (
-    <View style={s.header}>
-      <Text style={s.huge}>doom shroom</Text>
-      <Text style={s.base}>SCREAM IF YOU LOVE DOOM SHROOM!!!.</Text>
-
-      <Text style={s.h}>1. Permissions</Text>
-      <PermRow label="Display over other apps" ok={perm.overlay} />
-      <PermRow label="Usage access" ok={perm.usageStats} />
-      <PermRow label="Notifications" ok={perm.notifications} />
-      <Link label="open Display over other apps" onPress={openOverlaySettings} />
-      <Link label="open Usage access" onPress={openUsageSettings} />
-      <Link label="allow Notifications" onPress={askNotifications} />
-      <Link label="refresh" onPress={refreshPerm} />
-
-      <Text style={s.h}>2. Interval</Text>
-      <Text style={s.base}>Allowed {intervalSec} seconds between interruptions.</Text>
-      <View style={s.row}>
-        <Link label="less (-5s)" onPress={() => setIntervalSec(Math.max(5, intervalSec - 5))} />
-        <Link label="more (+5s)" onPress={() => setIntervalSec(intervalSec + 5)} />
-      </View>
-
-      <Text style={s.h}>3. Monitoring</Text>
-      <Text style={s.base}>
-        {monitoring ? 'RUNNING' : 'STOPPED'}. {blocked.length} apps listed. Interruptions so far: {interruptions}.
-      </Text>
-      <View style={s.row}>
-        <Link label="start" onPress={() => { startMonitor(); setMonitoring(true); }} />
-        <Link label="stop" onPress={() => { stopMonitor(); setMonitoring(false); }} />
-      </View>
-
-      <Text style={s.h}>4. Dev: run a popup</Text>
-      {popups.map((c, i) => (
-        <Link key={c.id} label={c.title} onPress={() => onDev(i)} />
-      ))}
-
-      <Text style={s.h}>5. Apps ({blocked.length} selected)</Text>
-      <Link label="load installed apps" onPress={async () => setApps(await loadInstalledApps())} />
-      <TextInput
-        value={filter}
-        onChangeText={setFilter}
-        placeholder="filter"
-        placeholderTextColor="#666666"
-        style={s.input}
+    <View>
+      {/* SECTION 1: gothic masthead + permissions (styled) */}
+      <GothicMasthead interruptions={interruptions} />
+      <GothicPermissions
+        perm={perm}
+        onOverlay={openOverlaySettings}
+        onUsage={openUsageSettings}
+        onNotify={askNotifications}
+        onRefresh={refreshPerm}
       />
+
+      {/* SECTIONS 2-5: still plain, restyle one at a time */}
+      <View style={s.header}>
+        <Text style={s.h}>2. Interval</Text>
+        <Text style={s.base}>Allowed {intervalSec} seconds between interruptions.</Text>
+        <View style={s.row}>
+          <Link label="less (-5s)" onPress={() => setIntervalSec(Math.max(5, intervalSec - 5))} />
+          <Link label="more (+5s)" onPress={() => setIntervalSec(intervalSec + 5)} />
+        </View>
+
+        <Text style={s.h}>3. Monitoring</Text>
+        <Text style={s.base}>
+          {monitoring ? 'RUNNING' : 'STOPPED'}. {blocked.length} apps listed. Interruptions so far: {interruptions}.
+        </Text>
+        <View style={s.row}>
+          <Link label="start" onPress={() => { startMonitor(); setMonitoring(true); }} />
+          <Link label="stop" onPress={() => { stopMonitor(); setMonitoring(false); }} />
+        </View>
+
+        <Text style={s.h}>4. Dev: run a popup</Text>
+        {popups.map((c, i) => (
+          <Link key={c.id} label={c.title} onPress={() => onDev(i)} />
+        ))}
+
+        <Text style={s.h}>5. Apps ({blocked.length} selected)</Text>
+        <Link label="load installed apps" onPress={async () => setApps(await loadInstalledApps())} />
+        <TextInput
+          value={filter}
+          onChangeText={setFilter}
+          placeholder="filter"
+          placeholderTextColor="#666666"
+          style={s.input}
+        />
+      </View>
     </View>
   );
 
@@ -148,8 +142,7 @@ export default function HomeScreen({
 const s = StyleSheet.create({
   page: { flex: 1, backgroundColor: '#FFFFFF' },
   listContent: { paddingBottom: 40 },
-  header: { padding: 12, paddingTop: 48, gap: 6 },
-  huge: { fontFamily: 'serif', fontSize: 38, fontWeight: 'bold', color: '#000000' },
+  header: { padding: 12, gap: 6 },
   h: { fontFamily: 'serif', fontSize: 22, marginTop: 14, color: '#000000' },
   base: { fontFamily: 'serif', fontSize: 16, color: '#000000' },
   link: { fontFamily: 'serif', fontSize: 16, color: '#0000EE', textDecorationLine: 'underline' },

@@ -15,7 +15,10 @@
     },
     "plugins": [
       "expo-app-blocker",
-      "./plugins/translucent.js"
+      "./plugins/translucent.js",
+      "expo-image",
+      "expo-audio",
+      "expo-font"
     ]
   }
 }
