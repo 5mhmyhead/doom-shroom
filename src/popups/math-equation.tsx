@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
 import {
+  Image,
   ImageBackground,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+
 import type { PopupProps } from "./types";
 
 type Question = {
@@ -76,6 +78,14 @@ const QUESTION_BANK: Record<number, Question[]> = {
       correct: "7",
     },
   ],
+};
+
+const DIFFICULTY_ICONS = {
+  1: require("../../assets/difficulty faces/Normal_Icon.png"),
+  2: require("../../assets/difficulty faces/Hard_Icon.png"),
+  3: require("../../assets/difficulty faces/Insane_Icon.png"),
+  4: require("../../assets/difficulty faces/EasyDemon_Icon.png"),
+  5: require("../../assets/difficulty faces/EasyDemon_Icon.png"),
 };
 
 const getQuestion = (level: number, previous?: Question): Question => {
@@ -194,10 +204,21 @@ export default function MathEquation({ onSolve }: PopupProps) {
       resizeMode="cover"
     >
       {/* FRACTAL CHALLENGE TITLE */}
+
       <View style={s.titleContainer}>
         <Text style={s.gameTitle}>Fractal Challenge</Text>
 
-        <Text style={s.levelText}>Level {currentLevel}</Text>
+        <View style={s.difficultyRow}>
+          <Image
+            source={
+              DIFFICULTY_ICONS[currentLevel as keyof typeof DIFFICULTY_ICONS]
+            }
+            style={s.difficultyIcon}
+            resizeMode="contain"
+          />
+
+          <Text style={s.levelText}>Level {currentLevel}</Text>
+        </View>
       </View>
 
       {/* MATH POPUP */}
@@ -240,7 +261,7 @@ export default function MathEquation({ onSolve }: PopupProps) {
           </View>
 
           <Text style={s.footerText}>
-            {feedback || `Level ${currentLevel} | Attempt ${attempts + 1}`}
+            {feedback || `Attempt ${attempts + 1}`}
           </Text>
         </View>
       </View>
@@ -251,16 +272,17 @@ export default function MathEquation({ onSolve }: PopupProps) {
 const s = StyleSheet.create({
   titleContainer: {
     position: "absolute",
-    top: 45,
+    top: 25,
     left: 0,
     right: 0,
-    paddingHorizontal: 18,
+    paddingHorizontal: 10,
     zIndex: 10,
   },
 
   gameTitle: {
     color: "#FF00E5",
-    fontSize: 27,
+    fontFamily: "ComicNeue_700Bold",
+    fontSize: 40,
     fontWeight: "bold",
     letterSpacing: 0.5,
     textAlign: "center",
@@ -268,6 +290,7 @@ const s = StyleSheet.create({
 
   levelText: {
     color: "#FFFFFF",
+    fontFamily: "ComicNeue_700Bold",
     fontSize: 11,
     fontWeight: "500",
     textAlign: "right",
@@ -289,11 +312,14 @@ const s = StyleSheet.create({
   },
 
   container: {
+    flex: 1,
     width: "100%",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: 18,
+    paddingTop: 255,
   },
+
   popup: {
     width: "100%",
     maxWidth: 320,
@@ -305,6 +331,22 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#65006C",
   },
+
+  difficultyRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 20,
+    marginTop: 2,
+  },
+
+  difficultyIcon: {
+    width: 75,
+    height: 75,
+    transform: [{ rotate: "-12deg" }],
+  },
+
   header: {
     backgroundColor: "#050505",
     minHeight: 44,
@@ -314,12 +356,14 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     color: "#FFFFFF",
-    fontSize: 13,
+    fontFamily: "ComicNeue_700Bold",
+    fontSize: 20,
     fontWeight: "600",
     fontStyle: "italic",
   },
   timer: {
     color: "#FFFFFF",
+    fontFamily: "ComicNeue_700Bold",
     fontSize: 12,
     textAlign: "right",
     fontWeight: "600",
@@ -334,6 +378,7 @@ const s = StyleSheet.create({
   },
   equationText: {
     color: "#FFFFFF",
+    fontFamily: "ComicNeue_700Bold",
     fontSize: 13,
     fontWeight: "500",
     textAlign: "center",
@@ -358,11 +403,13 @@ const s = StyleSheet.create({
   },
   answerText: {
     color: "#000000",
+    fontFamily: "ComicNeue_700Bold",
     fontSize: 24,
     fontWeight: "800",
   },
   footerText: {
     color: "#5CFF00",
+    fontFamily: "ComicNeue_700Bold",
     fontSize: 12,
     fontWeight: "700",
     fontStyle: "italic",
