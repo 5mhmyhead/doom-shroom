@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { popups } from '../popups/registry';
+import { useMemo } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { popups } from "../popups/registry";
 
 type Props = {
   appName: string;
@@ -27,7 +27,11 @@ export default function PopupScreen({
       <Popup onSolve={onSolved} level={level} />
 
       {/* Invisible 4s long-press emergency exit in the bottom-right corner */}
-      <Pressable onLongPress={onEscape} delayLongPress={4000} style={s.escape} />
+      <Pressable
+        onLongPress={onEscape}
+        delayLongPress={4000}
+        style={s.escape}
+      />
     </View>
   );
 }
@@ -35,11 +39,11 @@ export default function PopupScreen({
 const s = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-    justifyContent: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    justifyContent: "center",
   },
   escape: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     right: 0,
     width: 44,
