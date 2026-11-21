@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import {
-  Animated, Easing, Image, ImageSourcePropType, Pressable, StyleSheet, Text, TextStyle, View,
+  Animated, Easing, Image, ImageSourcePropType, Pressable, StyleSheet, Text, TextStyle, useWindowDimensions, View,
 } from 'react-native';
 import { Image as ExpoImage, type ImageProps as ExpoImageProps } from 'expo-image';
 import { ASSETS } from './gothicAssets';
@@ -25,12 +25,17 @@ export function Tiled({
   source,
   fallback = goth.coal,
   dim = 0,
+  scale = 1,
 }: {
   source: ImageSourcePropType | null;
   fallback?: string;
   dim?: number;
+  scale?: number;
 }) {
   const [box, setBox] = useState({ w: 0, h: 0 });
+
+  const scaledW = box.w / scale;
+  const scaledH = box.h / scale;
 
   return (
     <View
@@ -47,10 +52,32 @@ export function Tiled({
         <Image
           source={source}
           resizeMode="repeat"
-          style={{ width: box.w, height: box.h }}
+          style={
+            scale === 1
+              ? { width: box.w, height: box.h }
+              : {
+                  position: 'absolute',
+                  width: scaledW,
+                  height: scaledH,
+                  left: (box.w - scaledW) / 2,
+                  top: (box.h - scaledH) / 2,
+                  transform: [{ scale }],
+                }
+          }
         />
       )}
       {dim > 0 && <View style={[StyleSheet.absoluteFill, { backgroundColor: `rgba(0,0,0,${dim})` }]} />}
+    </View>
+  );
+}
+
+export function GothicGraniteSection({ children }: { children: ReactNode }) {
+  const { height } = useWindowDimensions();
+
+  return (
+    <View style={[g.graniteWrap, { minHeight: height + 24 }]}>
+      <Tiled source={ASSETS.granite} fallback={goth.coal} dim={0.25} />
+      {children}
     </View>
   );
 }
@@ -171,17 +198,12 @@ export function BloodTitle({
 export function GothicMasthead({ interruptions }: { interruptions: number }) {
   return (
     <View style={g.mast}>
-      <Tiled source={ASSETS.granite} fallback={goth.coal} dim={0.25} />
-
       <View style={g.topSpacer} />
 
       <BloodTitle text="DOOM SHROOM" size={42} source={ASSETS.title} />
 
       <Text style={g.script}>Dear Doomscroller,</Text>
       <Text style={g.script}>please scroll at your own risk.</Text>
-      <Text style={[g.script, { marginTop: 10, fontFamily: 'serif', fontWeight: 'bold', fontSize: 15, lineHeight: 20 }]}>
-        SCREAM IF YOU LOVE DOOM SHROOM!!!
-      </Text>
 
       <View style={g.torchSpacer} />
 
@@ -218,13 +240,29 @@ const GothLink = ({ label, onPress }: { label: string; onPress: () => void }) =>
 );
 
 const GothPerm = ({ label, ok }: { label: string; ok: boolean }) => {
+  const iconSource = ok ? ASSETS.permCandle : ASSETS.permSkull;
+
   const row = (
-    <Text style={g.perm}>
-      {ok ? '🕯️' : '💀'} {label}
-      {' — '}
-      <Text style={{ color: ok ? goth.bone : goth.blood, fontWeight: 'bold' }}>{ok ? 'GRANTED' : 'MISSING'}</Text>
-    </Text>
+    <View style={g.permRow}>
+      {iconSource ? (
+        <ExpoImage
+          source={iconSource as ExpoImageProps['source']}
+          contentFit="contain"
+          style={g.permIcon}
+        />
+      ) : (
+        <Text style={g.perm}>{ok ? '🕯️' : '💀'}</Text>
+      )}
+      <Text style={g.perm}>
+        {label}
+        {' — '}
+        <Text style={{ color: ok ? goth.bone : goth.blood, fontWeight: 'bold' }}>
+          {ok ? 'GRANTED' : 'MISSING'}
+        </Text>
+      </Text>
+    </View>
   );
+
   return ok ? row : <Flicker min={0.45}>{row}</Flicker>;
 };
 
@@ -244,8 +282,8 @@ export function GothicPermissions({
   return (
     <View style={g.frame}>
       <View style={g.pane}>
-        <Tiled source={ASSETS.tilePane} fallback={goth.black} dim={0.35} />
-        <Text style={g.sectionTitle}>☠ 1. Permissions</Text>
+        <Tiled source={ASSETS.tilePane} fallback={goth.black} dim={0.35} scale={0.25} />
+        <Text style={g.sectionTitle}>Permissions</Text>
         <GothPerm label="Display over other apps" ok={perm.overlay} />
         <GothPerm label="Usage access" ok={perm.usageStats} />
         <GothPerm label="Notifications" ok={perm.notifications} />
@@ -260,14 +298,19 @@ export function GothicPermissions({
 }
 
 const g = StyleSheet.create({
-  mast: {
+  graniteWrap: {
     overflow: 'hidden',
     backgroundColor: goth.coal,
-    paddingTop: 44,
-    paddingBottom: 14,
-    paddingHorizontal: 14,
+    justifyContent: 'space-between',
+    paddingBottom: 124,
     borderBottomWidth: 6,
     borderBottomColor: '#333',
+  },
+  mast: {
+    overflow: 'hidden',
+    paddingTop: 44,
+    paddingBottom: 20,
+    paddingHorizontal: 14,
   },
   topSpacer: { height: 54, marginBottom: 6 },
   torchSpacer: { height: 60, marginTop: 12 },
@@ -317,7 +360,22 @@ const g = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#000',
   },
-  sectionTitle: { fontFamily: 'serif', fontStyle: 'italic', fontSize: 24, color: goth.blood, marginBottom: 6 },
+  sectionTitle: {
+    fontFamily: 'GreatVibes_400Regular',
+    fontSize: 34,
+    lineHeight: 40,
+    color: goth.blood,
+    marginBottom: 6,
+  },
+  permRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  permIcon: {
+    width: 20,
+    height: 20,
+  },
   perm: { fontFamily: 'serif', fontSize: 16, color: '#C9C3A0' },
   link: { fontFamily: 'serif', fontSize: 16, color: goth.ash, textDecorationLine: 'underline' },
 });

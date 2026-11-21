@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FlatList, PermissionsAndroid, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, PermissionsAndroid, StyleSheet, View } from 'react-native';
 import {
   InstalledApp,
   getBlocked,
@@ -12,7 +12,10 @@ import {
   stopMonitor,
 } from '../lib/blocker';
 import { popups } from '../popups/registry';
-import { GothicMasthead, GothicPermissions, PermState } from '../theme/gothic';
+import { GothicGraniteSection, GothicMasthead, GothicPermissions, PermState } from '../theme/gothic';
+import { KawaiiIntervalSection } from '../theme/kawaii';
+import { ForestDevSection, ForestMonitoringSection } from '../theme/forest';
+import { HellAppsHeader, HellEmpty, HellFooter, HellRow } from '../theme/hell';
 
 type Props = {
   intervalSec: number;
@@ -22,12 +25,6 @@ type Props = {
   setMonitoring: (v: boolean) => void;
   onDev: (index: number) => void;
 };
-
-const Link = ({ label, onPress }: { label: string; onPress: () => void }) => (
-  <Pressable onPress={onPress}>
-    <Text style={s.link}>{label}</Text>
-  </Pressable>
-);
 
 export default function HomeScreen({
   intervalSec,
@@ -73,81 +70,62 @@ export default function HomeScreen({
 
   const header = (
     <View>
-      {/* SECTION 1: gothic masthead + permissions (styled) */}
-      <GothicMasthead interruptions={interruptions} />
-      <GothicPermissions
-        perm={perm}
-        onOverlay={openOverlaySettings}
-        onUsage={openUsageSettings}
-        onNotify={askNotifications}
-        onRefresh={refreshPerm}
-      />
-
-      {/* SECTIONS 2-5: still plain, restyle one at a time */}
-      <View style={s.header}>
-        <Text style={s.h}>2. Interval</Text>
-        <Text style={s.base}>Allowed {intervalSec} seconds between interruptions.</Text>
-        <View style={s.row}>
-          <Link label="less (-5s)" onPress={() => setIntervalSec(Math.max(5, intervalSec - 5))} />
-          <Link label="more (+5s)" onPress={() => setIntervalSec(intervalSec + 5)} />
-        </View>
-
-        <Text style={s.h}>3. Monitoring</Text>
-        <Text style={s.base}>
-          {monitoring ? 'RUNNING' : 'STOPPED'}. {blocked.length} apps listed. Interruptions so far: {interruptions}.
-        </Text>
-        <View style={s.row}>
-          <Link label="start" onPress={() => { startMonitor(); setMonitoring(true); }} />
-          <Link label="stop" onPress={() => { stopMonitor(); setMonitoring(false); }} />
-        </View>
-
-        <Text style={s.h}>4. Dev: run a popup</Text>
-        {popups.map((c, i) => (
-          <Link key={c.id} label={c.title} onPress={() => onDev(i)} />
-        ))}
-
-        <Text style={s.h}>5. Apps ({blocked.length} selected)</Text>
-        <Link label="load installed apps" onPress={async () => setApps(await loadInstalledApps())} />
-        <TextInput
-          value={filter}
-          onChangeText={setFilter}
-          placeholder="filter"
-          placeholderTextColor="#666666"
-          style={s.input}
+      {/* SECTION 1: gothic masthead + permissions */}
+      <GothicGraniteSection>
+        <GothicMasthead interruptions={interruptions} />
+        <GothicPermissions
+          perm={perm}
+          onOverlay={openOverlaySettings}
+          onUsage={openUsageSettings}
+          onNotify={askNotifications}
+          onRefresh={refreshPerm}
         />
-      </View>
+      </GothicGraniteSection>
+
+      {/* SECTION 2: kawaii interval */}
+      <KawaiiIntervalSection intervalSec={intervalSec} setIntervalSec={setIntervalSec} />
+
+      {/* SECTIONS 3-4: forest monitoring + dev popups */}
+      <ForestMonitoringSection
+        monitoring={monitoring}
+        appsListed={blocked.length}
+        interruptions={interruptions}
+        onStart={() => { startMonitor(); setMonitoring(true); }}
+        onStop={() => { stopMonitor(); setMonitoring(false); }}
+      />
+      <ForestDevSection items={popups.map((p) => ({ id: p.id, title: p.title }))} onPick={onDev} />
+
+      {/* SECTION 5: hell apps (header: title, load button, filter) */}
+      <HellAppsHeader
+        selectedCount={blocked.length}
+        filter={filter}
+        onFilter={setFilter}
+        onLoad={async () => setApps(await loadInstalledApps())}
+      />
     </View>
   );
 
   return (
     <FlatList
       style={s.page}
-      contentContainerStyle={s.listContent}
       keyboardShouldPersistTaps="handled"
       data={shown}
       keyExtractor={(a) => a.packageName}
       ListHeaderComponent={header}
-      ListEmptyComponent={<Text style={s.empty}>(no items)</Text>}
-      renderItem={({ item }) => (
-        <Pressable onPress={() => toggle(item.packageName)} style={s.item}>
-          <Text style={s.base}>
-            [{blocked.includes(item.packageName) ? 'x' : ' '}] {item.name}
-          </Text>
-        </Pressable>
+      ListEmptyComponent={<HellEmpty />}
+      ListFooterComponent={<HellFooter />}
+      renderItem={({ item, index }) => (
+        <HellRow
+          name={item.name}
+          on={blocked.includes(item.packageName)}
+          alt={index % 2 === 1}
+          onPress={() => toggle(item.packageName)}
+        />
       )}
     />
   );
 }
 
 const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: '#FFFFFF' },
-  listContent: { paddingBottom: 40 },
-  header: { padding: 12, gap: 6 },
-  h: { fontFamily: 'serif', fontSize: 22, marginTop: 14, color: '#000000' },
-  base: { fontFamily: 'serif', fontSize: 16, color: '#000000' },
-  link: { fontFamily: 'serif', fontSize: 16, color: '#0000EE', textDecorationLine: 'underline' },
-  row: { flexDirection: 'row', gap: 16 },
-  input: { borderWidth: 1, borderColor: '#000000', padding: 6, fontFamily: 'serif', color: '#000000' },
-  empty: { paddingHorizontal: 12, paddingVertical: 6, fontFamily: 'serif', color: '#000000' },
-  item: { paddingHorizontal: 12, paddingVertical: 6 },
+  page: { flex: 1, backgroundColor: '#120000' },
 });
