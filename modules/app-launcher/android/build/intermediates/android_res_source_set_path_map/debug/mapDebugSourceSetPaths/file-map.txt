@@ -1,0 +1,9 @@
+expo.modules.applauncher.app-launcher-pngs-0 /Users/dwyanesido/Documents/doom-shroom/modules/app-launcher/android/build/generated/res/pngs/debug
+expo.modules.applauncher.app-launcher-updated_navigation_xml-1 /Users/dwyanesido/Documents/doom-shroom/modules/app-launcher/android/build/generated/updated_navigation_xml/debug
+expo.modules.applauncher.app-launcher-mergeDebugResources-2 /Users/dwyanesido/Documents/doom-shroom/modules/app-launcher/android/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
+expo.modules.applauncher.app-launcher-mergeDebugResources-3 /Users/dwyanesido/Documents/doom-shroom/modules/app-launcher/android/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
+expo.modules.applauncher.app-launcher-debug-4 /Users/dwyanesido/Documents/doom-shroom/modules/app-launcher/android/build/intermediates/merged_res/debug/mergeDebugResources
+expo.modules.applauncher.app-launcher-debug-5 /Users/dwyanesido/Documents/doom-shroom/modules/app-launcher/android/build/intermediates/packaged_res/debug/packageDebugResources
+expo.modules.applauncher.app-launcher-debug-6 /Users/dwyanesido/Documents/doom-shroom/modules/app-launcher/android/src/debug/res
+expo.modules.applauncher.app-launcher-main-7 /Users/dwyanesido/Documents/doom-shroom/modules/app-launcher/android/src/main/res
+gradleHome-0 /Users/dwyanesido/.gradle
