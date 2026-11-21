@@ -81,11 +81,11 @@ const QUESTION_BANK: Record<number, Question[]> = {
 };
 
 const DIFFICULTY_ICONS = {
-  1: require("../../assets/difficulty faces/Normal_Icon.png"),
-  2: require("../../assets/difficulty faces/Hard_Icon.png"),
-  3: require("../../assets/difficulty faces/Insane_Icon.png"),
-  4: require("../../assets/difficulty faces/EasyDemon_Icon.png"),
-  5: require("../../assets/difficulty faces/EasyDemon_Icon.png"),
+  1: require("../../assets/difficulty-faces/Normal_Icon.png"),
+  2: require("../../assets/difficulty-faces/Hard_Icon.png"),
+  3: require("../../assets/difficulty-faces/Insane_Icon.png"),
+  4: require("../../assets/difficulty-faces/EasyDemon_Icon.png"),
+  5: require("../../assets/difficulty-faces/EasyDemon_Icon.png"),
 };
 
 const getQuestion = (level: number, previous?: Question): Question => {
