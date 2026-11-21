@@ -1,5 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
-import { FlatList, PermissionsAndroid, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useMemo, useState } from "react";
+import {
+  FlatList,
+  PermissionsAndroid,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import {
   InstalledApp,
   getBlocked,
@@ -10,8 +18,8 @@ import {
   setBlocked,
   startMonitor,
   stopMonitor,
-} from '../lib/blocker';
-import { popups } from '../popups/registry';
+} from "../lib/blocker";
+import { popups } from "../popups/registry";
 
 type Props = {
   intervalSec: number;
@@ -32,7 +40,7 @@ const Link = ({ label, onPress }: { label: string; onPress: () => void }) => (
 
 const PermRow = ({ label, ok }: { label: string; ok: boolean }) => (
   <Text style={s.base}>
-    [{ok ? 'x' : ' '}] {label} — {ok ? 'OK' : 'MISSING'}
+    [{ok ? "x" : " "}] {label} — {ok ? "OK" : "MISSING"}
   </Text>
 );
 
@@ -44,15 +52,23 @@ export default function HomeScreen({
   setMonitoring,
   onDev,
 }: Props) {
-  const [perm, setPerm] = useState<Perm>({ overlay: false, usageStats: false, notifications: false });
+  const [perm, setPerm] = useState<Perm>({
+    overlay: false,
+    usageStats: false,
+    notifications: false,
+  });
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [blocked, setBlockedState] = useState<string[]>([]);
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState("");
 
   const refreshPerm = async () => {
     const p = await getPermissions();
     const d = p.details as unknown as Record<string, unknown>;
-    setPerm({ overlay: !!d.overlay, usageStats: !!d.usageStats, notifications: !!d.notifications });
+    setPerm({
+      overlay: !!d.overlay,
+      usageStats: !!d.usageStats,
+      notifications: !!d.notifications,
+    });
   };
 
   useEffect(() => {
@@ -63,18 +79,23 @@ export default function HomeScreen({
   }, []);
 
   const shown = useMemo(
-    () => apps.filter((a) => a.name.toLowerCase().includes(filter.toLowerCase())),
+    () =>
+      apps.filter((a) => a.name.toLowerCase().includes(filter.toLowerCase())),
     [apps, filter],
   );
 
   const toggle = (pkg: string) => {
-    const next = blocked.includes(pkg) ? blocked.filter((p) => p !== pkg) : [...blocked, pkg];
+    const next = blocked.includes(pkg)
+      ? blocked.filter((p) => p !== pkg)
+      : [...blocked, pkg];
     setBlockedState(next);
     setBlocked(next);
   };
 
   const askNotifications = async () => {
-    await PermissionsAndroid.request('android.permission.POST_NOTIFICATIONS' as any);
+    await PermissionsAndroid.request(
+      "android.permission.POST_NOTIFICATIONS" as any,
+    );
     refreshPerm();
   };
 
@@ -87,25 +108,49 @@ export default function HomeScreen({
       <PermRow label="Display over other apps" ok={perm.overlay} />
       <PermRow label="Usage access" ok={perm.usageStats} />
       <PermRow label="Notifications" ok={perm.notifications} />
-      <Link label="open Display over other apps" onPress={openOverlaySettings} />
+      <Link
+        label="open Display over other apps"
+        onPress={openOverlaySettings}
+      />
       <Link label="open Usage access" onPress={openUsageSettings} />
       <Link label="allow Notifications" onPress={askNotifications} />
       <Link label="refresh" onPress={refreshPerm} />
 
       <Text style={s.h}>2. Interval</Text>
-      <Text style={s.base}>Allowed {intervalSec} seconds between interruptions.</Text>
+      <Text style={s.base}>
+        Allowed {intervalSec} seconds between interruptions.
+      </Text>
       <View style={s.row}>
-        <Link label="less (-5s)" onPress={() => setIntervalSec(Math.max(5, intervalSec - 5))} />
-        <Link label="more (+5s)" onPress={() => setIntervalSec(intervalSec + 5)} />
+        <Link
+          label="less (-5s)"
+          onPress={() => setIntervalSec(Math.max(5, intervalSec - 5))}
+        />
+        <Link
+          label="more (+5s)"
+          onPress={() => setIntervalSec(intervalSec + 5)}
+        />
       </View>
 
       <Text style={s.h}>3. Monitoring</Text>
       <Text style={s.base}>
-        {monitoring ? 'RUNNING' : 'STOPPED'}. {blocked.length} apps listed. Interruptions so far: {interruptions}.
+        {monitoring ? "RUNNING" : "STOPPED"}. {blocked.length} apps listed.
+        Interruptions so far: {interruptions}.
       </Text>
       <View style={s.row}>
-        <Link label="start" onPress={() => { startMonitor(); setMonitoring(true); }} />
-        <Link label="stop" onPress={() => { stopMonitor(); setMonitoring(false); }} />
+        <Link
+          label="start"
+          onPress={() => {
+            startMonitor();
+            setMonitoring(true);
+          }}
+        />
+        <Link
+          label="stop"
+          onPress={() => {
+            stopMonitor();
+            setMonitoring(false);
+          }}
+        />
       </View>
 
       <Text style={s.h}>4. Dev: run a popup</Text>
@@ -114,7 +159,10 @@ export default function HomeScreen({
       ))}
 
       <Text style={s.h}>5. Apps ({blocked.length} selected)</Text>
-      <Link label="load installed apps" onPress={async () => setApps(await loadInstalledApps())} />
+      <Link
+        label="load installed apps"
+        onPress={async () => setApps(await loadInstalledApps())}
+      />
       <TextInput
         value={filter}
         onChangeText={setFilter}
@@ -137,7 +185,7 @@ export default function HomeScreen({
       renderItem={({ item }) => (
         <Pressable onPress={() => toggle(item.packageName)} style={s.item}>
           <Text style={s.base}>
-            [{blocked.includes(item.packageName) ? 'x' : ' '}] {item.name}
+            [{blocked.includes(item.packageName) ? "x" : " "}] {item.name}
           </Text>
         </Pressable>
       )}
@@ -146,15 +194,36 @@ export default function HomeScreen({
 }
 
 const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: '#FFFFFF' },
+  page: { flex: 1, backgroundColor: "#FFFFFF" },
   listContent: { paddingBottom: 40 },
   header: { padding: 12, paddingTop: 48, gap: 6 },
-  huge: { fontFamily: 'serif', fontSize: 38, fontWeight: 'bold', color: '#000000' },
-  h: { fontFamily: 'serif', fontSize: 22, marginTop: 14, color: '#000000' },
-  base: { fontFamily: 'serif', fontSize: 16, color: '#000000' },
-  link: { fontFamily: 'serif', fontSize: 16, color: '#0000EE', textDecorationLine: 'underline' },
-  row: { flexDirection: 'row', gap: 16 },
-  input: { borderWidth: 1, borderColor: '#000000', padding: 6, fontFamily: 'serif', color: '#000000' },
-  empty: { paddingHorizontal: 12, paddingVertical: 6, fontFamily: 'serif', color: '#000000' },
+  huge: {
+    fontFamily: "serif",
+    fontSize: 38,
+    fontWeight: "bold",
+    color: "#000000",
+  },
+  h: { fontFamily: "serif", fontSize: 22, marginTop: 14, color: "#000000" },
+  base: { fontFamily: "serif", fontSize: 16, color: "#000000" },
+  link: {
+    fontFamily: "serif",
+    fontSize: 16,
+    color: "#0000EE",
+    textDecorationLine: "underline",
+  },
+  row: { flexDirection: "row", gap: 16 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#000000",
+    padding: 6,
+    fontFamily: "serif",
+    color: "#000000",
+  },
+  empty: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    fontFamily: "serif",
+    color: "#000000",
+  },
   item: { paddingHorizontal: 12, paddingVertical: 6 },
 });
