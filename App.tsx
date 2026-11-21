@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
-import { BackHandler } from 'react-native';
-import * as Linking from 'expo-linking';
-import { useFonts, GreatVibes_400Regular } from '@expo-google-fonts/great-vibes';
-import PopupScreen from './src/screens/popup-screen';
-import HomeScreen from './src/screens/home-screen';
+import { useCallback, useEffect, useState } from "react";
+import { BackHandler } from "react-native";
+import * as Linking from "expo-linking";
+import { useFonts } from "expo-font";
+import { GreatVibes_400Regular } from "@expo-google-fonts/great-vibes";
+import {
+  ComicNeue_400Regular,
+  ComicNeue_700Bold,
+} from "@expo-google-fonts/comic-neue";
+import PopupScreen from "./src/screens/popup-screen";
+import HomeScreen from "./src/screens/home-screen";
 import {
   IS_EXPO_GO,
   grantWindow,
@@ -11,18 +16,22 @@ import {
   returnToApp,
   stopMonitor,
   styleOverlay,
-} from './src/lib/blocker';
-import { levelFor } from './src/lib/escalation';
+} from "./src/lib/blocker";
+import { levelFor } from "./src/lib/escalation";
 
 type Mode =
-  | { name: 'home' }
-  | { name: 'popup'; app: string; pkg: string; reason: string; run: number }
-  | { name: 'dev'; index: number };
+  | { name: "home" }
+  | { name: "popup"; app: string; pkg: string; reason: string; run: number }
+  | { name: "dev"; index: number };
 
 export default function App() {
-  const [fontsLoaded, fontError] = useFonts({ GreatVibes_400Regular });
+  const [fontsLoaded, fontError] = useFonts({
+    GreatVibes_400Regular,
+    ComicNeue_400Regular,
+    ComicNeue_700Bold,
+  });
 
-  const [mode, setMode] = useState<Mode>({ name: 'home' });
+  const [mode, setMode] = useState<Mode>({ name: "home" });
   const [intervalSec, setIntervalSec] = useState(15);
   const [interruptions, setInterruptions] = useState(0);
   const [monitoring, setMonitoring] = useState(false);
@@ -43,7 +52,7 @@ export default function App() {
       setMonitoring(true);
       setInterruptions((n) => n + 1);
       setMode({
-        name: 'popup',
+        name: "popup",
         app: link.app,
         pkg: link.pkg,
         reason: link.reason,
@@ -52,7 +61,7 @@ export default function App() {
     };
 
     Linking.getInitialURL().then(handle);
-    const sub = Linking.addEventListener('url', (e) => handle(e.url));
+    const sub = Linking.addEventListener("url", (e) => handle(e.url));
     return () => {
       ignore = true;
       sub.remove();
@@ -60,13 +69,13 @@ export default function App() {
   }, []);
 
   const onSolved = useCallback(async () => {
-    if (mode.name !== 'popup') {
-      setMode({ name: 'home' });
+    if (mode.name !== "popup") {
+      setMode({ name: "home" });
       return;
     }
 
     await grantWindow(intervalSec);
-    setMode({ name: 'home' });
+    setMode({ name: "home" });
 
     if (!IS_EXPO_GO && !(await returnToApp(mode.pkg))) {
       BackHandler.exitApp();
@@ -77,18 +86,18 @@ export default function App() {
     stopMonitor();
     setMonitoring(false);
     setInterruptions(0);
-    setMode({ name: 'home' });
+    setMode({ name: "home" });
   }, []);
 
   if (!fontsLoaded && !fontError) return null;
 
-  if (mode.name !== 'home') {
-    const isPopup = mode.name === 'popup';
+  if (mode.name !== "home") {
+    const isPopup = mode.name === "popup";
     return (
       <PopupScreen
         key={isPopup ? mode.run : `dev-${mode.index}`}
-        appName={isPopup ? mode.app : 'Dev'}
-        reason={isPopup ? mode.reason : 'opened'}
+        appName={isPopup ? mode.app : "Dev"}
+        reason={isPopup ? mode.reason : "opened"}
         level={level}
         forceIndex={isPopup ? undefined : mode.index}
         onSolved={onSolved}
@@ -104,7 +113,7 @@ export default function App() {
       interruptions={interruptions}
       monitoring={monitoring}
       setMonitoring={setMonitoring}
-      onDev={(index) => setMode({ name: 'dev', index })}
+      onDev={(index) => setMode({ name: "dev", index })}
     />
   );
 }
