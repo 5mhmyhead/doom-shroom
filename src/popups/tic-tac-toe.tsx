@@ -35,10 +35,10 @@ const WIN_LINES = [
 ];
 
 const DIFFICULTY_FACES: Record<number, any> = {
-  1: require("../../assets/difficulty faces/Normal_Icon.png"),
-  2: require("../../assets/difficulty faces/Normal_Icon.png"),
-  3: require("../../assets/difficulty faces/Normal_Icon.png"),
-  4: require("../../assets/difficulty faces/Normal_Icon.png"),
+  1: require("../../assets/difficulty-faces/Normal_Icon.png"),
+  2: require("../../assets/difficulty-faces/Normal_Icon.png"),
+  3: require("../../assets/difficulty-faces/Normal_Icon.png"),
+  4: require("../../assets/difficulty-faces/Normal_Icon.png"),
 };
 
 const COMIC_FONT = "ComicNeue_700Bold";
