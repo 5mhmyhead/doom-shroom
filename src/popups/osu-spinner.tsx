@@ -148,7 +148,7 @@ export default function OsuSpinner({ onSolve, level }: PopupProps) {
 
         <View style={s.panel}>
           <Image
-            source={require("../../assets/difficulty faces/Normal_Icon.png")}
+            source={require("../../assets/difficulty-faces/Normal_Icon.png")}
             style={s.smiley}
           />
 
