@@ -20,10 +20,11 @@ Built with **React Native**, **Expo**, and **TypeScript**, the project combines 
 
 | Challenge | Description |
 | --- | --- |
-| Simple Close | A basic popup interaction. |
 | Tic Tac Toe | A tic-tac-toe mini-game. |
 | Math Equation | A math-based challenge with difficulty levels. |
 | Osu Spinner | A spinner-style mini-game. |
+| Hell-Capcha | You must pick related symbols. |
+| I am not a Robot | Continue to agree. |
 
 Challenge components are registered in [`src/popups/registry.ts`](src/popups/registry.ts).
 
