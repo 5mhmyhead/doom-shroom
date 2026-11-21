@@ -80,8 +80,8 @@ export default function HomeScreen({
 
   const header = (
     <View style={s.header}>
-      <Text style={s.huge}>tarpit</Text>
-      <Text style={s.base}>An application to prevent you from using applications.</Text>
+      <Text style={s.huge}>doom shroom</Text>
+      <Text style={s.base}>SCREAM IF YOU LOVE DOOM SHROOM!!!.</Text>
 
       <Text style={s.h}>1. Permissions</Text>
       <PermRow label="Display over other apps" ok={perm.overlay} />
