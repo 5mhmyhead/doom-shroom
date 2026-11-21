@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
 import * as Linking from 'expo-linking';
+import { useFonts, GreatVibes_400Regular } from '@expo-google-fonts/great-vibes';
 import PopupScreen from './src/screens/popup-screen';
 import HomeScreen from './src/screens/home-screen';
 import {
@@ -19,6 +20,8 @@ type Mode =
   | { name: 'dev'; index: number };
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({ GreatVibes_400Regular });
+
   const [mode, setMode] = useState<Mode>({ name: 'home' });
   const [intervalSec, setIntervalSec] = useState(15);
   const [interruptions, setInterruptions] = useState(0);
@@ -76,6 +79,8 @@ export default function App() {
     setInterruptions(0);
     setMode({ name: 'home' });
   }, []);
+
+  if (!fontsLoaded && !fontError) return null;
 
   if (mode.name !== 'home') {
     const isPopup = mode.name === 'popup';

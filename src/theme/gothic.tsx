@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Animated, Easing, Image, ImageSourcePropType, Pressable, StyleSheet, Text, TextStyle, View,
 } from 'react-native';
@@ -30,9 +30,26 @@ export function Tiled({
   fallback?: string;
   dim?: number;
 }) {
+  const [box, setBox] = useState({ w: 0, h: 0 });
+
   return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: fallback }]}>
-      {source && <Image source={source} resizeMode="repeat" style={StyleSheet.absoluteFill} />}
+    <View
+      pointerEvents="none"
+      onLayout={(e) => {
+        const { width, height } = e.nativeEvent.layout;
+        if (width !== box.w || height !== box.h) {
+          setBox({ w: width, h: height });
+        }
+      }}
+      style={[StyleSheet.absoluteFill, { backgroundColor: fallback, overflow: 'hidden' }]}
+    >
+      {source && box.w > 0 && box.h > 0 && (
+        <Image
+          source={source}
+          resizeMode="repeat"
+          style={{ width: box.w, height: box.h }}
+        />
+      )}
       {dim > 0 && <View style={[StyleSheet.absoluteFill, { backgroundColor: `rgba(0,0,0,${dim})` }]} />}
     </View>
   );
@@ -272,7 +289,13 @@ const g = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
   },
-  script: { fontFamily: 'cursive', fontSize: 26, color: goth.blood, textAlign: 'center', lineHeight: 30 },
+  script: {
+    fontFamily: 'GreatVibes_400Regular',
+    fontSize: 30,
+    color: goth.blood,
+    textAlign: 'center',
+    lineHeight: 36,
+  },
   visited: { alignItems: 'center', marginTop: 10 },
   visitedSmall: { fontFamily: 'sans-serif', fontSize: 13, color: goth.blood },
   visitedCount: { fontFamily: 'sans-serif', fontSize: 13, color: '#FFFFFF' },
