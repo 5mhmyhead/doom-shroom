@@ -4,12 +4,14 @@ import * as Linking from 'expo-linking';
 import PopupScreen from './src/screens/popup-screen';
 import HomeScreen from './src/screens/home-screen';
 import {
+  IS_EXPO_GO,
   grantWindow,
   parseBlockedLink,
   returnToApp,
   stopMonitor,
   styleOverlay,
 } from './src/lib/blocker';
+import { levelFor } from './src/lib/escalation';
 
 type Mode =
   | { name: 'home' }
@@ -21,6 +23,7 @@ export default function App() {
   const [intervalSec, setIntervalSec] = useState(15);
   const [interruptions, setInterruptions] = useState(0);
   const [monitoring, setMonitoring] = useState(false);
+  const level = levelFor(interruptions);
 
   useEffect(() => {
     styleOverlay();
@@ -62,7 +65,7 @@ export default function App() {
     await grantWindow(intervalSec);
     setMode({ name: 'home' });
 
-    if (!(await returnToApp(mode.pkg))) {
+    if (!IS_EXPO_GO && !(await returnToApp(mode.pkg))) {
       BackHandler.exitApp();
     }
   }, [mode, intervalSec]);
@@ -70,6 +73,7 @@ export default function App() {
   const onEscape = useCallback(() => {
     stopMonitor();
     setMonitoring(false);
+    setInterruptions(0);
     setMode({ name: 'home' });
   }, []);
 
@@ -80,7 +84,7 @@ export default function App() {
         key={isPopup ? mode.run : `dev-${mode.index}`}
         appName={isPopup ? mode.app : 'Dev'}
         reason={isPopup ? mode.reason : 'opened'}
-        level={interruptions}
+        level={level}
         forceIndex={isPopup ? undefined : mode.index}
         onSolved={onSolved}
         onEscape={onEscape}
