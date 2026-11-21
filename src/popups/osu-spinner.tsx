@@ -29,7 +29,7 @@ const SWITCH_GRACE_MS = 150;
 const IDLE_MS = 120;
 
 export default function OsuSpinner({ onSolve, level }: PopupProps) {
-  const idx = 3;
+  const idx = Math.min(Math.max(Math.round(level), 0), MAX_LEVEL - 1);
   const cfg = LEVELS[idx];
   const directional = cfg.switchMs > 0;
 
